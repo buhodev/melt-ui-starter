@@ -1,4 +1,22 @@
-/* This file was created by inlang.
-It is needed in order to circumvent a current limitation of SvelteKit. See https://github.com/inlang/inlang/issues/647
-You can remove this comment and modify the file as you like. We just need to make sure it exists.
-Please do not delete it (inlang will recreate it if needed). */
+export const handle = async ({ event, resolve }) => {
+	let location;
+
+	try {
+		location = event.getClientAddress();
+	} catch (e) {
+		console.log('catch error: ', e);
+		location = event.request.headers.get('x-forwarded-for') || event.request.headers.get('cf-connecting-ip') || '';
+	}
+
+	const response = await resolve(event);
+
+	console.log({ location });
+	console.log(
+		'x-forwarded-for: ',
+		event.request.headers.get('x-forwarded-for'),
+		'cf-connecting-ip: ',
+		event.request.headers.get('cf-connecting-ip')
+	);
+
+	return response;
+};
